@@ -16,8 +16,10 @@ namespace IISConsole
 
 
 
-        internal RequestQueue()
+        internal RequestQueue(UrlGroup urlGroup)
         {
+            _urlGroup = urlGroup;
+
             var queueName = "IISConsole";
             HttpRequestQueueV2Handle requestQueueHandle = null;
 
@@ -28,16 +30,6 @@ namespace IISConsole
             {
                 throw new HttpSysException((int)statusCode);
             }
-
-            // Disabling callbacks when IO operation completes synchronously (returns ErrorCodes.ERROR_SUCCESS)
-            //if (HttpSysListener.SkipIOCPCallbackOnSuccess &&
-            //    !UnsafeNclNativeMethods.SetFileCompletionNotificationModes(
-            //        requestQueueHandle,
-            //        UnsafeNclNativeMethods.FileCompletionNotificationModes.SkipCompletionPortOnSuccess |
-            //        UnsafeNclNativeMethods.FileCompletionNotificationModes.SkipSetEventOnHandle))
-            //{
-            //    throw new HttpSysException(Marshal.GetLastWin32Error());
-            //}
 
             Handle = requestQueueHandle;
             BoundHandle = ThreadPoolBoundHandle.BindHandle(Handle);
@@ -79,6 +71,20 @@ namespace IISConsole
 
             _urlGroup.SetProperty(HttpApiTypes.HTTP_SERVER_PROPERTY.HttpServerBindingProperty,
                 infoptr, (uint)BindingInfoSize, throwOnError: false);
+        }
+
+        internal unsafe void SetLengthLimit(long length)
+        {
+            CheckDisposed();
+
+            var result = HttpApi.HttpSetRequestQueueProperty(Handle,
+                HttpApiTypes.HTTP_SERVER_PROPERTY.HttpServerQueueLengthProperty,
+                new IntPtr((void*)&length), (uint)Marshal.SizeOf<long>(), 0, IntPtr.Zero);
+
+            if (result != 0)
+            {
+                throw new HttpSysException((int)result);
+            }
         }
 
         public void Dispose()

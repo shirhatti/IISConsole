@@ -1,6 +1,5 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using System;
-using System.Diagnostics;
 using System.Threading;
 
 namespace IISConsole
@@ -24,15 +23,27 @@ namespace IISConsole
             };
 
             app.HelpOption("-h|--help");
-
+            var requestQueueLimitOption = app.Option("-l|--requestqueue-limit", "The length of the Http.Sys Request queue", CommandOptionType.SingleValue);
+            var urlsOption = app.Option("-u|--urls", "URLs to listen on", CommandOptionType.MultipleValue);
             app.OnExecute(() =>
             {
-                var workerProcessHelper = new WorkerProcessHelper();
-                workerProcessHelper.Start();
+                var workerProcessOptions = new WorkerProcessOptions();
+                urlsOption.Values.ForEach(url => workerProcessOptions.UrlPrefixes.Add(url));
+                if (requestQueueLimitOption.HasValue())
+                {
+                    if (Int32.TryParse(requestQueueLimitOption.Value(), out int limit))
+                    {
+                        workerProcessOptions.RequestQueueLimit = limit;
+                    }
+                }
+
                 Console.WriteLine("Listening. Press Ctrl + C to stop listening...");
-                exitEvent.WaitOne();
+                using (var workerProcessHelper = new WorkerProcessHelper(workerProcessOptions))
+                {
+                    workerProcessHelper.Start();
+                    exitEvent.WaitOne();
+                }
                 Console.WriteLine("Exiting");
-                workerProcessHelper.Stop();
                 return;
             });
 
