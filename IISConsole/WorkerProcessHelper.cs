@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace IISConsole
 {
@@ -9,8 +11,10 @@ namespace IISConsole
     {
         // TODO move to WorkerProcessOptions
         private static readonly string _w3wpPath = "C:\\Windows\\System32\\inetsrv\\w3wp.exe";
-        private static readonly string _w3wpArguments = "-u";
+        private static readonly string _pipeName = "iisconsoleipm";
+        private static readonly string _w3wpArguments = @"-ap ""IISConsole""  -a \\.\pipe\" + _pipeName + @" -h ""C:\Users\soshir\source\repos\IISConsole\IISConsole\DefaultAppPool.config""";
         private Process _process = new Process();
+        private PipeServerHelper _pipeServer = new PipeServerHelper(_pipeName);
 
         private volatile State _state;
         private object _internalLock;
@@ -94,21 +98,27 @@ namespace IISConsole
                     throw;
                 }
             }
-            // 4. Start Process
-            //_process.StartInfo.FileName = _w3wpPath;
-            //_process.StartInfo.Arguments = _w3wpArguments;
-            //_process.StartInfo.UseShellExecute = false;
-            //_process.StartInfo.CreateNoWindow = true;
-            //_process.Start();
-            //// TODO
-            //// Start process in suspended mode, add to job object, and then resume
-            //ChildProcessTracker.AddProcess(_process);
+
+            // 4. Listen on named pipe
+            _pipeServer.StartServer();
+
+            // 5. Start Process
+            _process.StartInfo.FileName = _w3wpPath;
+            _process.StartInfo.Arguments = _w3wpArguments;
+            _process.StartInfo.UseShellExecute = false;
+            _process.StartInfo.CreateNoWindow = true;
+            _process.Start();
+            // TODO
+            // Start process in suspended mode, add to job object, and then resume
+            ChildProcessTracker.AddProcess(_process);
+
         }
 
         private void Stop()
         {
             // TODO
             // Send Ctrl+C signal to worker process
+            _pipeServer.StopServer();
 
             // Clean up Http.Sys
             lock (_internalLock)
@@ -159,6 +169,7 @@ namespace IISConsole
         }
         private void DisposeInternal()
         {
+            _pipeServer.Dispose();
             // V2 stopping sequence:
             // 1. Detach request queue from url group - Done in Stop()/Abort()
             // 2. Remove urls from url group - Done in Stop()
