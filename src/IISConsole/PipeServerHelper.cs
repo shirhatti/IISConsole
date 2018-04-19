@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IISConsole.Ipc;
+using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
@@ -35,16 +36,17 @@ namespace IISConsole
                 await ListenAsync(token);
             }, token);
 
-            //// Create thread to send ping
-            //Task.Run(() =>
-            //{
-            //    while(true)
-            //    {
-            //        token.WaitHandle.WaitOne(TimeSpan.FromSeconds(5));
-            //        SendMessage(IPM_OPCODE.IPM_OP_PING, 0, null);
-            //    }
-                
-            //}, token);
+            // Create thread to send ping
+            Task.Run(() =>
+            {
+                var message = new PingMessage();
+                while (true)
+                {
+                    token.WaitHandle.WaitOne(TimeSpan.FromSeconds(2));
+                    SendMessage(message);
+                }
+
+            }, token);
 
         }
 
@@ -53,22 +55,13 @@ namespace IISConsole
             _cts.Cancel();
         }
 
-        internal void SendMessage(IPM_OPCODE opCode, uint size, byte[] buffer)
+        internal void SendMessage(IpmMessage message)
         {
-            var header = new IPM_MESSAGE_HEADER(opCode, size);
-            var headerSize = Marshal.SizeOf(typeof(IPM_MESSAGE_HEADER));
-            var headerBuffer = new byte[headerSize];
-            var ptr = Marshal.AllocHGlobal(headerSize);
-            Marshal.StructureToPtr(header, ptr, false);
-            Marshal.Copy(ptr, headerBuffer, 0, headerSize);
-            lock(_internalLock)
+            var buffer = message.ToByteArray();
+            lock (_internalLock)
             {
-                PipeServer.Write(headerBuffer, 0, headerSize);
-            }
 
-            if (size != 0)
-            {
-                throw new NotImplementedException();
+                PipeServer.Write(buffer, 0, buffer.Length);
             }
         }
 
@@ -81,22 +74,32 @@ namespace IISConsole
             {
                 try
                 {
-                    var header = await PipeServer.ReadIpmMessageHeaderAsync(ct);
-                    Console.WriteLine(Enum.GetName(typeof(IPM_OPCODE), header.OpCode));
-                    Console.WriteLine(header.MessageSize - Marshal.SizeOf(header));
+                    var buffer = new byte[IpmMessage.MessageHeaderSize];
+                    if (await PipeServer.ReadAsync(buffer, 0, IpmMessage.MessageHeaderSize, ct) != IpmMessage.MessageHeaderSize)
+                    {
+                        // TODO better exceptions
+                        throw new ApplicationException();
+                    }
 
+                    var messageHeader = new IpmMessage(buffer);
+                    var messageBodyBuffer = new byte[messageHeader.MessageBodySize];
+                    if (await PipeServer.ReadAsync(messageBodyBuffer, 0, (int)messageHeader.MessageBodySize, ct) != messageHeader.MessageBodySize)
+                    {
+                        // TODO better exceptions
+                        throw new ApplicationException();
+                    }
                     // Dispatch based on the message received
-                    switch (header.OpCode)
+                    switch (messageHeader.OpCode)
                     {
                         case IPM_OPCODE.IPM_OP_GETPID:
-                            var buffer = new byte[4];
-                            PipeServer.Read(buffer, 0, 4);
-                            var pid = BitConverter.ToUInt32(buffer, 0);
-                            Console.WriteLine($"w3wp[{pid}] connected");
+                            var pidMessage = new GetPidMessage(messageHeader, messageBodyBuffer);
+                            Console.WriteLine($"w3wp[{pidMessage.ProcessId}] connected");
                             break;
                         default:
                             // For now we're just ignoring the message
-                            PipeServer.Position += (header.MessageSize - Marshal.SizeOf(header));
+                            Console.WriteLine(Enum.GetName(typeof(IPM_OPCODE), messageHeader.OpCode));
+                            Console.WriteLine(messageHeader.MessageBodySize);
+                            PipeServer.Position += (messageHeader.MessageBodySize);
                             break;
                     }
                     

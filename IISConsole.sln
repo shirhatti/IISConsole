@@ -3,23 +3,57 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27612.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IISConsole", "IISConsole\IISConsole.csproj", "{1DEB72CE-B263-4EAE-B1E4-9810C63251EF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7B3A8375-4951-438E-9C63-18FCC5F56DFB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IISConsole", "src\IISConsole\IISConsole.csproj", "{3183093F-3991-45E3-8605-2D011368C666}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{ACB96AF4-DE28-4346-BC5B-309A899ED6D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IISConsole.Tests", "test\IISConsole.Tests\IISConsole.Tests.csproj", "{4F02CA4C-3BBE-49D4-AD9D-171754F15496}"
 EndProject
 Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1DEB72CE-B263-4EAE-B1E4-9810C63251EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1DEB72CE-B263-4EAE-B1E4-9810C63251EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1DEB72CE-B263-4EAE-B1E4-9810C63251EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1DEB72CE-B263-4EAE-B1E4-9810C63251EF}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {596A5D95-233C-40B4-BC0F-D8026B29168E}
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3183093F-3991-45E3-8605-2D011368C666}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3183093F-3991-45E3-8605-2D011368C666}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3183093F-3991-45E3-8605-2D011368C666}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3183093F-3991-45E3-8605-2D011368C666}.Debug|x64.Build.0 = Debug|Any CPU
+		{3183093F-3991-45E3-8605-2D011368C666}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3183093F-3991-45E3-8605-2D011368C666}.Debug|x86.Build.0 = Debug|Any CPU
+		{3183093F-3991-45E3-8605-2D011368C666}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3183093F-3991-45E3-8605-2D011368C666}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3183093F-3991-45E3-8605-2D011368C666}.Release|x64.ActiveCfg = Release|Any CPU
+		{3183093F-3991-45E3-8605-2D011368C666}.Release|x64.Build.0 = Release|Any CPU
+		{3183093F-3991-45E3-8605-2D011368C666}.Release|x86.ActiveCfg = Release|Any CPU
+		{3183093F-3991-45E3-8605-2D011368C666}.Release|x86.Build.0 = Release|Any CPU
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496}.Debug|x64.Build.0 = Debug|Any CPU
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496}.Debug|x86.Build.0 = Debug|Any CPU
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496}.Release|x64.ActiveCfg = Release|Any CPU
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496}.Release|x64.Build.0 = Release|Any CPU
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496}.Release|x86.ActiveCfg = Release|Any CPU
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3183093F-3991-45E3-8605-2D011368C666} = {7B3A8375-4951-438E-9C63-18FCC5F56DFB}
+		{4F02CA4C-3BBE-49D4-AD9D-171754F15496} = {ACB96AF4-DE28-4346-BC5B-309A899ED6D1}
 	EndGlobalSection
 EndGlobal

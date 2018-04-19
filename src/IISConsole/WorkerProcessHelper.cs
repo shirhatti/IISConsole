@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IISConsole.Ipc;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -11,6 +12,7 @@ namespace IISConsole
     {
         // TODO move to WorkerProcessOptions
         private static readonly string _w3wpPath = "C:\\Windows\\System32\\inetsrv\\w3wp.exe";
+        // TODO Append GUID to pipename. This will allow us to run multiple instances simultaneously
         private static readonly string _pipeName = "iisconsoleipm";
         private static readonly string _w3wpArguments = @"-ap ""IISConsole""  -a \\.\pipe\" + _pipeName + @" -h ""C:\Users\soshir\source\repos\IISConsole\IISConsole\DefaultAppPool.config""";
         private Process _process = new Process();
@@ -118,6 +120,9 @@ namespace IISConsole
         {
             // TODO
             // Send Ctrl+C signal to worker process
+
+            // TODO Pipe might be broken. Need to guard against that
+            _pipeServer.SendMessage(new ShutdownMessage());
             _pipeServer.StopServer();
 
             // Clean up Http.Sys
