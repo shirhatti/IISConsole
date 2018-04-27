@@ -28,7 +28,7 @@ namespace IISConsole
             HttpServerExtendedAuthenticationProperty,
             HttpServerListenEndpointProperty,
             HttpServerChannelBindProperty,
-            HttpServerProtectionLevelProperty,
+            HttpServerProtectionLevelProperty
         }
 
         // Currently only one request info type is supported but the enum is for future extensibility.

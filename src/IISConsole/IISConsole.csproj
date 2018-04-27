@@ -10,4 +10,10 @@
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.2.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="DefaultAppPool.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

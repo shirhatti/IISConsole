@@ -14,7 +14,7 @@ namespace IISConsole
         private static readonly string _w3wpPath = "C:\\Windows\\System32\\inetsrv\\w3wp.exe";
         // TODO Append GUID to pipename. This will allow us to run multiple instances simultaneously
         private static readonly string _pipeName = "iisconsoleipm";
-        private static readonly string _w3wpArguments = @"-ap ""IISConsole""  -a \\.\pipe\" + _pipeName + @" -h ""C:\Users\soshir\source\repos\IISConsole\IISConsole\DefaultAppPool.config""";
+        private static readonly string _w3wpArguments = @"-ap ""IISConsole""  -a \\.\pipe\" + _pipeName + @" -h " + Directory.GetCurrentDirectory() + @"\DefaultAppPool.config";
         private Process _process = new Process();
         private PipeServerHelper _pipeServer = new PipeServerHelper(_pipeName);
 
