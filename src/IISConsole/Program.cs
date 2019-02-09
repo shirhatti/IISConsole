@@ -1,53 +1,39 @@
-﻿using McMaster.Extensions.CommandLineUtils;
+﻿using IISConsole.IISConfiguration;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
-using System.Threading;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace IISConsole
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public async static Task Main(string[] args)
         {
-            var exitEvent = new ManualResetEvent(false);
-            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
-            {
-                e.Cancel = true;
-                exitEvent.Set();
-            };
-
-            var app = new CommandLineApplication
-            {
-                Name = "iisconsole",
-                FullName = "IIS Console",
-                Description = "Commandline Utility for running IIS worker process"
-            };
-
-            app.HelpOption("-h|--help");
-            var requestQueueLimitOption = app.Option("-l|--requestqueue-limit", "The length of the Http.Sys Request queue", CommandOptionType.SingleValue);
-            var urlsOption = app.Option("-u|--urls", "URLs to listen on", CommandOptionType.MultipleValue);
-            app.OnExecute(() =>
-            {
-                var workerProcessOptions = new WorkerProcessOptions();
-                urlsOption.Values.ForEach(url => workerProcessOptions.UrlPrefixes.Add(url));
-                if (requestQueueLimitOption.HasValue())
+            var builder = new HostBuilder()
+                .ConfigureAppConfiguration(configuration =>
                 {
-                    if (Int32.TryParse(requestQueueLimitOption.Value(), out int limit))
-                    {
-                        workerProcessOptions.RequestQueueLimit = limit;
-                    }
-                }
-
-                Console.WriteLine("Listening. Press Ctrl + C to stop listening...");
-                using (var workerProcessHelper = new WorkerProcessHelper(workerProcessOptions))
+                    configuration.AddJsonFile("appsettings.json", optional: true);
+                    configuration.AddCommandLine(args);
+                })
+                .ConfigureServices(services =>
                 {
-                    workerProcessHelper.Start();
-                    exitEvent.WaitOne();
-                }
-                Console.WriteLine("Exiting");
-                return;
-            });
+                })
+                .ConfigureLogging((hostingContext, logging) =>
+                {
+                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    logging.AddConsole();
+                    logging.SetMinimumLevel(LogLevel.Information);
+                })
+                .UseConsoleLifetime();
 
-            app.Execute(args);
+            await builder.RunConsoleAsync();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace IISConsole
     public class PipeServerHelper : IDisposable
     {
         private CancellationTokenSource _cts;
-        private object _internalLock;
+        private readonly object _internalLock;
         public NamedPipeServerStream PipeServer { get; set; }
         public PipeServerHelper(string pipeName)
         {
